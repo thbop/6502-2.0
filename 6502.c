@@ -1,6 +1,7 @@
 // General includes
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 
 // Global typedefs
 typedef unsigned char  u8;
@@ -10,6 +11,10 @@ typedef unsigned short u16;
 #include "include/memory.h"
 #include "include/instructions.h"
 #include "include/cpu.h"
+
+void execute() {
+    while (1) CPU_execute();
+}
 
 // Main program
 int main(int argc, char** argv) {
@@ -24,12 +29,22 @@ int main(int argc, char** argv) {
 
     CPU_reset();
 
-    MEM.buffer[0x0045] = 0x13;
+    MEM.buffer[0x0005] = 0x37;
 
-    for ( int i = 0; i < 100; i++ ) {
-        CPU_execute();
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, execute, NULL);
+    // pthread_join(thread_id, NULL);
+
+    while (1) {
+        printf("> ");
+        fgets(MEM.buffer+0x0100, 0xFF, stdin);
+        printf("A: %X\n", CPU.A);
     }
-    printf("%x\n", CPU.A);
+
+    // For basic instruction testing
+    // for ( int i = 0; i < 10; i++ ) {
+    //     CPU_execute();
+    // }
 
 
     return 0;
