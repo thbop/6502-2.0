@@ -13,18 +13,22 @@ typedef unsigned short u16;
 
 // Main program
 int main(int argc, char** argv) {
-    if ( argc > 1 ) {
-        if ( MEM_load_ROM(argv[1]) ) return 1;
-    }
-    else {
-        printf("ERROR: File argument not supplied!\n");
-        return 1;
-    }
+    // if ( argc > 1 ) {
+    //     if ( MEM_load_ROM(argv[1]) ) return 1;
+    // }
+    // else {
+    //     printf("ERROR: File argument not supplied!\n");
+    //     return 1;
+    // }
+    MEM_load_ROM("sys.out");
 
     CPU_reset();
 
-    CPU_execute();
+    MEM.buffer[0x0045] = 0x13;
 
+    for ( int i = 0; i < 100; i++ ) {
+        CPU_execute();
+    }
     printf("%x\n", CPU.A);
 
 

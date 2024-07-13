@@ -26,8 +26,6 @@ int MEM_load_ROM( char* filename ) {
 
     for ( int i = 0; i < 0xFFFF; i++ ) {
         MEM.buffer[i] = fgetc(fp);
-        if ( MEM.buffer[i] )
-            printf("%x\n", MEM.buffer[i]);
     }
 
     fclose(fp);
