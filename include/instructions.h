@@ -31,5 +31,13 @@ enum {
     INS_STA_ABY = 0x99,
     INS_STA_IX  = 0x81,
     INS_STA_IY  = 0x91,
+
+    INS_STX_ZP  = 0x86, // STX
+    INS_STX_ZPY = 0x96,
+    INS_STX_ABS = 0x8E,
+
+    INS_STY_ZP  = 0x84, // STY
+    INS_STY_ZPX = 0x94,
+    INS_STY_ABS = 0x8C,
 };
     

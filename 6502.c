@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
     // while (1) {
     //     printf("> ");
-    //     fgets(MEM.buffer+0x0200, 0xFF, stdin);
+    //     fgets(MEM.buffer+0x0200, 0xFF, stdin); // Not very accurate...
     //     printf("A: %X\n", CPU.A);
     // }
 
@@ -44,13 +44,6 @@ int main(int argc, char** argv) {
         CPU_execute();
     }
 
-    printf("%X %X %X %X %X\n",
-        MEM.buffer[0],
-        MEM.buffer[0x54],
-        MEM.buffer[0x5000],
-        MEM.buffer[0x5054],
-        MEM.buffer[0x5065]
-    );
 
 
     return 0;

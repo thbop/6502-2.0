@@ -122,13 +122,21 @@ void CPU_execute() {
         case INS_JMP_ABS: CPU.PC = CPU_fetch_u16();                break; // JMP
         case INS_JMP_IDR: CPU.PC = CPU_get_ABS(0);                 break;
 
-        case INS_STA_ZP : CPU_set_ZP( CPU.A, 0 );                  break; // STA
-        case INS_STA_ZPX: CPU_set_ZP( CPU.A, CPU.X );              break;
+        case INS_STA_ZP : CPU_set_ZP ( CPU.A, 0 );                 break; // STA
+        case INS_STA_ZPX: CPU_set_ZP ( CPU.A, CPU.X );             break;
         case INS_STA_ABS: CPU_set_ABS( CPU.A, 0 );                 break;
         case INS_STA_ABX: CPU_set_ABS( CPU.A, CPU.X );             break;
         case INS_STA_ABY: CPU_set_ABS( CPU.A, CPU.Y );             break;
         case INS_STA_IX : CPU_set_IDR( CPU.A, CPU.X, 0 );          break;
         case INS_STA_IY : CPU_set_IDR( CPU.A, 0, CPU.Y );          break;
+
+        case INS_STX_ZP : CPU_set_ZP ( CPU.X, 0 );                 break; // STX
+        case INS_STX_ZPY: CPU_set_ZP ( CPU.X, CPU.Y );             break;
+        case INS_STX_ABS: CPU_set_ABS( CPU.X, 0 );                 break;
+
+        case INS_STY_ZP : CPU_set_ZP ( CPU.Y, 0 );                 break; // STY
+        case INS_STY_ZPX: CPU_set_ZP ( CPU.Y, CPU.X );             break;
+        case INS_STY_ABS: CPU_set_ABS( CPU.Y, 0 );                 break;
 
         default:                                                   break;
     }
