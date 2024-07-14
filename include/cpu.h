@@ -14,6 +14,17 @@ struct {
     
 } CPU;
 
+u8 CPU_pack_flags() {
+    return
+        CPU.C +
+        ( CPU.Z << 1 ) +
+        ( CPU.I << 2 ) +
+        ( CPU.D << 3 ) +
+        ( CPU.B << 4 ) +
+        ( CPU.V << 5 ) +
+        ( CPU.N << 6 );
+}
+
 u16 CPU_read_u16( u16 address ) {
     //               MSB                         LSB
     return (MEM.buffer[address+1] << 8) + MEM.buffer[address];
@@ -94,6 +105,16 @@ void CPU_LD( u8* dest, u8 value ) {
     *dest = value;
 }
 
+void CPU_stack_push( u8 value ) {
+    CPU_write_u8( CPU.SP+0x100, value );
+    CPU.SP--;
+}
+
+u8 CPU_stack_pull() {
+    CPU.SP++;
+    CPU_read_u8( CPU.SP+0x100);
+}
+
 void CPU_execute() {
     u8 ins = CPU_fetch_u8();
     printf("PC: %X INS: %X A: %X X: %X Y: %X\n", CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y);
@@ -121,6 +142,10 @@ void CPU_execute() {
 
         case INS_JMP_ABS: CPU.PC = CPU_fetch_u16();                break; // JMP
         case INS_JMP_IDR: CPU.PC = CPU_get_ABS(0);                 break;
+
+        case INS_PHA    : CPU_stack_push(CPU.A);                   break;
+        case INS_PHP    : CPU_stack_push(CPU_pack_flags());        break;
+        case INS_PLA    : CPU_LD( &CPU.A, CPU_stack_pull() );      break;
 
         case INS_STA_ZP : CPU_set_ZP ( CPU.A, 0 );                 break; // STA
         case INS_STA_ZPX: CPU_set_ZP ( CPU.A, CPU.X );             break;

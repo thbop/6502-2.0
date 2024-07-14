@@ -24,6 +24,10 @@ enum {
     INS_JMP_ABS = 0x4C, // JMP
     INS_JMP_IDR = 0x6C,
 
+    INS_PHA     = 0x48, // PHA
+    INS_PHP     = 0x08, // PHP
+    INS_PLA     = 0X68, // PLA
+
     INS_STA_ZP  = 0x85, // STA
     INS_STA_ZPX = 0x95,
     INS_STA_ABS = 0x8D,
