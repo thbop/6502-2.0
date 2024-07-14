@@ -23,6 +23,11 @@ u8 CPU_read_u8( u16 address ) {
     return MEM.buffer[address];
 }
 
+
+void CPU_write_u8( u16 address, u8 value ) {
+    MEM.buffer[address] = value;
+}
+
 u8 CPU_fetch_u8() {
     return CPU_read_u8( CPU.PC++ );
 }
@@ -62,13 +67,25 @@ u8 CPU_get_ZP(u8 offset) {
     return CPU_read_u8(zpaddr+offset);
 }
 
+void CPU_set_ZP( u8 value, u8 offset ) {
+    CPU_write_u8(CPU_fetch_u8()+offset, value);
+}
+
 u8 CPU_get_ABS(u8 offset) {
     u16 absaddr = CPU_fetch_u16();
     return CPU_read_u8(absaddr+offset);
 }
 
+void CPU_set_ABS( u8 value, u8 offset ) {
+    CPU_write_u8(CPU_fetch_u16()+offset, value);
+}
+
 u8 CPU_get_IDR(u8 X, u8 Y) {
     return CPU_read_u16( CPU_read_u16( CPU_fetch_u8() + X ) + Y );
+}
+
+void CPU_set_IDR(u8 value, u8 X, u8 Y) {
+    return CPU_write_u8( CPU_read_u16( CPU_fetch_u8() + X ) + Y, value );
 }
 
 
@@ -79,7 +96,7 @@ void CPU_LD( u8* dest, u8 value ) {
 
 void CPU_execute() {
     u8 ins = CPU_fetch_u8();
-    printf("PC: %X INS: %X A: %X\n", CPU.PC-1, ins, CPU.A);
+    printf("PC: %X INS: %X A: %X X: %X Y: %X\n", CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y);
     switch (ins) {
         case INS_LDA_IM : CPU_LD( &CPU.A, CPU_get_IM() );          break; // LDA
         case INS_LDA_ZP : CPU_LD( &CPU.A, CPU_get_ZP(0) );         break;
@@ -104,6 +121,14 @@ void CPU_execute() {
 
         case INS_JMP_ABS: CPU.PC = CPU_fetch_u16();                break; // JMP
         case INS_JMP_IDR: CPU.PC = CPU_get_ABS(0);                 break;
+
+        case INS_STA_ZP : CPU_set_ZP( CPU.A, 0 );                  break; // STA
+        case INS_STA_ZPX: CPU_set_ZP( CPU.A, CPU.X );              break;
+        case INS_STA_ABS: CPU_set_ABS( CPU.A, 0 );                 break;
+        case INS_STA_ABX: CPU_set_ABS( CPU.A, CPU.X );             break;
+        case INS_STA_ABY: CPU_set_ABS( CPU.A, CPU.Y );             break;
+        case INS_STA_IX : CPU_set_IDR( CPU.A, CPU.X, 0 );          break;
+        case INS_STA_IY : CPU_set_IDR( CPU.A, 0, CPU.Y );          break;
 
         default:                                                   break;
     }

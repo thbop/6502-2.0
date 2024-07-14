@@ -40,9 +40,17 @@ int main(int argc, char** argv) {
     // }
 
     // For basic instruction testing
-    for ( int i = 0; i < 10; i++ ) {
+    for ( int i = 0; i < 20; i++ ) {
         CPU_execute();
     }
+
+    printf("%X %X %X %X %X\n",
+        MEM.buffer[0],
+        MEM.buffer[0x54],
+        MEM.buffer[0x5000],
+        MEM.buffer[0x5054],
+        MEM.buffer[0x5065]
+    );
 
 
     return 0;
