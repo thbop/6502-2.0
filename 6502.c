@@ -29,22 +29,20 @@ int main(int argc, char** argv) {
 
     CPU_reset();
 
-    MEM.buffer[0x0005] = 0x37;
 
-    pthread_t thread_id;
-    pthread_create(&thread_id, NULL, execute, NULL);
-    // pthread_join(thread_id, NULL);
+    // pthread_t thread_id;
+    // pthread_create(&thread_id, NULL, execute, NULL);
 
-    while (1) {
-        printf("> ");
-        fgets(MEM.buffer+0x0100, 0xFF, stdin);
-        printf("A: %X\n", CPU.A);
-    }
+    // while (1) {
+    //     printf("> ");
+    //     fgets(MEM.buffer+0x0200, 0xFF, stdin);
+    //     printf("A: %X\n", CPU.A);
+    // }
 
     // For basic instruction testing
-    // for ( int i = 0; i < 10; i++ ) {
-    //     CPU_execute();
-    // }
+    for ( int i = 0; i < 10; i++ ) {
+        CPU_execute();
+    }
 
 
     return 0;

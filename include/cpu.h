@@ -16,11 +16,11 @@ struct {
 
 u16 CPU_read_u16( u16 address ) {
     //               MSB                         LSB
-    return (MEM.buffer[address] << 8) + MEM.buffer[address-1];
+    return (MEM.buffer[address+1] << 8) + MEM.buffer[address];
 }
 
 u8 CPU_read_u8( u16 address ) {
-    return MEM.buffer[address-1];
+    return MEM.buffer[address];
 }
 
 u8 CPU_fetch_u8() {
@@ -67,6 +67,11 @@ u8 CPU_get_ABS(u8 offset) {
     return CPU_read_u8(absaddr+offset);
 }
 
+u8 CPU_get_IDR(u8 X, u8 Y) {
+    return CPU_read_u16( CPU_read_u16( CPU_fetch_u8() + X ) + Y );
+}
+
+
 void CPU_LD( u8* dest, u8 value ) {
     CPU_set_generic_flag(value);
     *dest = value;
@@ -74,15 +79,16 @@ void CPU_LD( u8* dest, u8 value ) {
 
 void CPU_execute() {
     u8 ins = CPU_fetch_u8();
-    // printf("PC: %X INS: %X A: %X\n", CPU.PC-1, ins, CPU.A);
+    printf("PC: %X INS: %X A: %X\n", CPU.PC-1, ins, CPU.A);
     switch (ins) {
-        case INS_LDA_IM:  CPU_LD( &CPU.A, CPU_get_IM() );          break; // LDA
-        case INS_LDA_ZP:  CPU_LD( &CPU.A, CPU_get_ZP(0) );         break;
+        case INS_LDA_IM : CPU_LD( &CPU.A, CPU_get_IM() );          break; // LDA
+        case INS_LDA_ZP : CPU_LD( &CPU.A, CPU_get_ZP(0) );         break;
         case INS_LDA_ZPX: CPU_LD( &CPU.A, CPU_get_ZP(CPU.X) );     break;
         case INS_LDA_ABS: CPU_LD( &CPU.A, CPU_get_ABS(0) );        break;
         case INS_LDA_ABX: CPU_LD( &CPU.A, CPU_get_ABS(CPU.X) );    break;
         case INS_LDA_ABY: CPU_LD( &CPU.A, CPU_get_ABS(CPU.Y) );    break;
-        // Incomplete
+        case INS_LDA_IX : CPU_LD( &CPU.A, CPU_get_IDR(CPU.X, 0) ); break;
+        case INS_LDA_IY : CPU_LD( &CPU.A, CPU_get_IDR(0, CPU.Y) ); break;
 
         case INS_LDX_IM:  CPU_LD( &CPU.X, CPU_get_IM() );          break; // LDX
         case INS_LDX_ZP:  CPU_LD( &CPU.X, CPU_get_ZP(0) );         break;
@@ -90,9 +96,15 @@ void CPU_execute() {
         case INS_LDX_ABS: CPU_LD( &CPU.X, CPU_get_ABS(0) );        break;
         case INS_LDX_ABY: CPU_LD( &CPU.X, CPU_get_ABS(CPU.Y) );    break;
 
+        case INS_LDY_IM:  CPU_LD( &CPU.Y, CPU_get_IM() );          break; // LDY
+        case INS_LDY_ZP:  CPU_LD( &CPU.Y, CPU_get_ZP(0) );         break;
+        case INS_LDY_ZPX: CPU_LD( &CPU.Y, CPU_get_ZP(CPU.X) );     break;
+        case INS_LDY_ABS: CPU_LD( &CPU.Y, CPU_get_ABS(0) );        break;
+        case INS_LDY_ABX: CPU_LD( &CPU.Y, CPU_get_ABS(CPU.X) );    break;
+
         case INS_JMP_ABS: CPU.PC = CPU_fetch_u16();                break; // JMP
         case INS_JMP_IDR: CPU.PC = CPU_get_ABS(0);                 break;
-    
+
         default:                                                   break;
     }
 }

@@ -1,7 +1,8 @@
 .segment "CODE"
 
 start:
-    lda $0101
+    ldy #$13
+    lda ($11),y
     jmp start
 
 .segment "VECTORS"

@@ -2,7 +2,7 @@
 #define MEMORY_H
 
 struct {
-    u8 buffer[0xFFFF];
+    u8 buffer[0x10000];
     // 0000 - 00FF = Zero Page                          (RAM)
     // 0100 - 01FF = System Stack                       (RAM)
     // 0200 - 7FFF = RAM
