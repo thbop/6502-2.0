@@ -1,14 +1,9 @@
 .segment "CODE"
 
-lda #3
+lda #$55
 pha
-lda #1
-pha
-lda #7
-pha
-
-pla
-pla
+plp
+php
 pla
 
 .segment "VECTORS"

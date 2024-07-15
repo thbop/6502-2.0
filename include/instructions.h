@@ -26,7 +26,8 @@ enum {
 
     INS_PHA     = 0x48, // PHA
     INS_PHP     = 0x08, // PHP
-    INS_PLA     = 0X68, // PLA
+    INS_PLA     = 0x68, // PLA
+    INS_PLP     = 0x28, // PLP
 
     INS_STA_ZP  = 0x85, // STA
     INS_STA_ZPX = 0x95,
