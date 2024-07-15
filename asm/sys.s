@@ -2,20 +2,27 @@
 
 dat = $10
 
-.macro set addr, value ; little test macro
-    pha
-    lda value
-    sta addr
-    pla
-.endmacro
 
-set dat, 0
-loop:
-    inc dat
-    inx
-    iny
+interrupt_handle: ; 5 bytes
+    pha
+    lda #$45
+    pla
+    rti
+
+ss:
+    jsr ee
     lda dat
-    jmp loop
+    jmp ss
+
+ee:
+    inc dat
+    inc dat
+    brk
+    rts
+
+
 
 .segment "VECTORS"
-.word $0000, $8000, $0000
+.word $0000  ; nonmaskable interrupt handler 
+.word $8005  ; reset location                
+.word $8000  ; BRK / interrupt handler         

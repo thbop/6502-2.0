@@ -1,5 +1,7 @@
 
 enum {
+    INS_BRK     = 0x00, // BRK
+
     INS_LDA_IM  = 0xA9, // LDA
     INS_LDA_ZP  = 0xA5,
     INS_LDA_ZPX = 0xB5,
@@ -26,8 +28,10 @@ enum {
     INS_INC_ABS = 0xEE,
     INS_INC_ABX = 0xFE,
 
-    INS_INX     = 0xE8,
-    INS_INY     = 0xC8,
+    INS_INX     = 0xE8, // INX
+    INS_INY     = 0xC8, // INY
+
+    INS_JSR     = 0x20, // JSR
 
     INS_JMP_ABS = 0x4C, // JMP
     INS_JMP_IDR = 0x6C,
@@ -52,5 +56,8 @@ enum {
     INS_STY_ZP  = 0x84, // STY
     INS_STY_ZPX = 0x94,
     INS_STY_ABS = 0x8C,
+
+    INS_RTI     = 0x40, // RTI
+    INS_RTS     = 0x60, // RTS
 };
     

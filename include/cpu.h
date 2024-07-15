@@ -50,6 +50,11 @@ void CPU_write_u8( u16 address, u8 value ) {
     MEM.buffer[address] = value;
 }
 
+void CPU_write_u16( u16 address, u16 value ) {
+    MEM.buffer[address]   = value & 0xFF; // LSB
+    MEM.buffer[address+1] = value >> 8;   // MSB
+}
+
 u8 CPU_fetch_u8() {
     return CPU_read_u8( CPU.PC++ );
 }
@@ -57,6 +62,30 @@ u8 CPU_fetch_u8() {
 u16 CPU_fetch_u16() {
     CPU.PC += 2;
     return CPU_read_u16( CPU.PC-2 );
+}
+
+void CPU_stack_push_u8( u8 value ) {
+    // printf("-> %X\n", value);
+    CPU_write_u8( CPU.SP+0x100, value );
+    CPU.SP--;
+}
+
+void CPU_stack_push_u16( u16 value ) {
+    // printf("-> %X\n", value);
+    CPU_write_u16( CPU.SP+0x100, value );
+    CPU.SP -= 2;
+}
+
+u8 CPU_stack_pull_u8() {
+    CPU.SP++;
+    // printf("<- %X\n", CPU_read_u8( CPU.SP+0x100));
+    return CPU_read_u8( CPU.SP+0x100);
+}
+
+u16 CPU_stack_pull_u16() {
+    CPU.SP += 2;
+    // printf("<- %X\n", CPU_read_u16( CPU.SP+0x100));
+    return CPU_read_u16( CPU.SP+0x100);
 }
 
 void CPU_reset() {
@@ -132,18 +161,25 @@ void CPU_LD( u8* dest, u8 value ) {
     *dest = value;
 }
 
-
-void CPU_stack_push( u8 value ) {
-    // printf("-> %X\n", value);
-    CPU_write_u8( CPU.SP+0x100, value );
-    CPU.SP--;
+void CPU_JSR() {
+    CPU_stack_push_u16( CPU.PC+2 );
+    CPU.PC = CPU_fetch_u16();
 }
 
-u8 CPU_stack_pull() {
-    CPU.SP++;
-    // printf("<- %X\n", CPU_read_u8( CPU.SP+0x100));
-    return CPU_read_u8( CPU.SP+0x100);
+void CPU_BRK() {
+    CPU_stack_push_u16( CPU.PC );
+    CPU_stack_push_u16( CPU_pack_flags() );
+
+    CPU.B = 1;
+    CPU.PC = CPU_read_u16( 0xFFFE );
 }
+
+void CPU_RTI() {
+    CPU_unpack_flags( CPU_stack_pull_u16() );
+    CPU.PC = CPU_stack_pull_u16();
+}
+
+
 
 void CPU_execute() {
     u8 ins = CPU_fetch_u8();
@@ -152,6 +188,8 @@ void CPU_execute() {
         CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N
     );
     switch (ins) {
+        case INS_BRK    : CPU_BRK();                               break; // BRK
+
         case INS_LDA_IM : CPU_LD( &CPU.A, CPU_get_IM() );          break; // LDA
         case INS_LDA_ZP : CPU_LD( &CPU.A, CPU_get_ZP(0) );         break;
         case INS_LDA_ZPX: CPU_LD( &CPU.A, CPU_get_ZP(CPU.X) );     break;
@@ -184,10 +222,12 @@ void CPU_execute() {
         case INS_JMP_ABS: CPU.PC = CPU_fetch_u16();                break; // JMP
         case INS_JMP_IDR: CPU.PC = CPU_get_ABS(0);                 break;
 
-        case INS_PHA    : CPU_stack_push(CPU.A);                   break; // PHA
-        case INS_PHP    : CPU_stack_push(CPU_pack_flags());        break; // PHP
-        case INS_PLA    : CPU_LD( &CPU.A, CPU_stack_pull() );      break; // PLA
-        case INS_PLP    : CPU_unpack_flags( CPU_stack_pull() );    break; // PLP
+        case INS_JSR    : CPU_JSR();                               break;
+
+        case INS_PHA    : CPU_stack_push_u8(CPU.A);                break; // PHA
+        case INS_PHP    : CPU_stack_push_u8(CPU_pack_flags());     break; // PHP
+        case INS_PLA    : CPU_LD( &CPU.A, CPU_stack_pull_u8() );   break; // PLA
+        case INS_PLP    : CPU_unpack_flags( CPU_stack_pull_u8() ); break; // PLP
 
         case INS_STA_ZP : CPU_set_ZP ( CPU.A, 0 );                 break; // STA
         case INS_STA_ZPX: CPU_set_ZP ( CPU.A, CPU.X );             break;
@@ -204,6 +244,9 @@ void CPU_execute() {
         case INS_STY_ZP : CPU_set_ZP ( CPU.Y, 0 );                 break; // STY
         case INS_STY_ZPX: CPU_set_ZP ( CPU.Y, CPU.X );             break;
         case INS_STY_ABS: CPU_set_ABS( CPU.Y, 0 );                 break;
+
+        case INS_RTI    : CPU_RTI();                               break; // RTI
+        case INS_RTS    : CPU.PC = CPU_stack_pull_u16();           break; // RTS
 
         default:                                                   break;
     }
