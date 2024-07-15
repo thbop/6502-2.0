@@ -75,9 +75,10 @@ void CPU_reset() {
     CPU.N = 0;
 }
 
-void CPU_set_generic_flag( u8 value ) {
-    CPU.Z = ( value == 0 );          // Set Zero Flag if value is 0
-    CPU.N = ( 0b10000000 && value ); // Set Negative Flag if 7th bit is 1
+// CPU set generic flags
+void CPU_sgf( u8 value ) {
+    CPU.Z = ( value == 0 );             // Set Zero Flag if value is 0
+    CPU.N = ( 0b10000000 & value ) > 0; // Set Negative Flag if 7th bit is 1
 }
 
 u8 CPU_get_IM() {
@@ -93,6 +94,14 @@ void CPU_set_ZP( u8 value, u8 offset ) {
     CPU_write_u8(CPU_fetch_u8()+offset, value);
 }
 
+// Delta refers to value change (e.g. added to value), offset refers to address lookup offset
+u8 CPU_modify_ZP( u8 delta, u8 offset ) {
+    u8 addr  = CPU_fetch_u8()+offset;
+    u8 value = CPU_read_u8(addr)+delta;
+    CPU_write_u8( addr, value );
+    return value;
+}
+
 u8 CPU_get_ABS(u8 offset) {
     u16 absaddr = CPU_fetch_u16();
     return CPU_read_u8(absaddr+offset);
@@ -100,6 +109,13 @@ u8 CPU_get_ABS(u8 offset) {
 
 void CPU_set_ABS( u8 value, u8 offset ) {
     CPU_write_u8(CPU_fetch_u16()+offset, value);
+}
+
+u8 CPU_modify_ABS( u8 delta, u8 offset ) {
+    u16 addr = CPU_fetch_u16()+offset;
+    u8 value = CPU_read_u8(addr)+delta;
+    CPU_write_u8( addr, value );
+    return value;
 }
 
 u8 CPU_get_IDR(u8 X, u8 Y) {
@@ -112,9 +128,10 @@ void CPU_set_IDR(u8 value, u8 X, u8 Y) {
 
 
 void CPU_LD( u8* dest, u8 value ) {
-    CPU_set_generic_flag(value);
+    CPU_sgf(value);
     *dest = value;
 }
+
 
 void CPU_stack_push( u8 value ) {
     // printf("-> %X\n", value);
@@ -155,6 +172,14 @@ void CPU_execute() {
         case INS_LDY_ZPX: CPU_LD( &CPU.Y, CPU_get_ZP(CPU.X) );     break;
         case INS_LDY_ABS: CPU_LD( &CPU.Y, CPU_get_ABS(0) );        break;
         case INS_LDY_ABX: CPU_LD( &CPU.Y, CPU_get_ABS(CPU.X) );    break;
+
+        case INS_INC_ZP : CPU_sgf( CPU_modify_ZP( 1, 0 ) );        break; // INC
+        case INS_INC_ZPX: CPU_sgf( CPU_modify_ZP( 1, CPU.X ) );    break;
+        case INS_INC_ABS: CPU_sgf( CPU_modify_ABS( 1, 0 ) );       break;
+        case INS_INC_ABX: CPU_sgf( CPU_modify_ABS( 1, CPU.X ) );   break;
+
+        case INS_INX    : CPU.X++; CPU_sgf(CPU.X);                 break; // INX
+        case INS_INY    : CPU.Y++; CPU_sgf(CPU.Y);                 break; // INY
 
         case INS_JMP_ABS: CPU.PC = CPU_fetch_u16();                break; // JMP
         case INS_JMP_IDR: CPU.PC = CPU_get_ABS(0);                 break;

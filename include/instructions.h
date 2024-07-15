@@ -21,6 +21,14 @@ enum {
     INS_LDY_ABS = 0xAC,
     INS_LDY_ABX = 0xBC,
 
+    INS_INC_ZP  = 0xE6, // INC
+    INS_INC_ZPX = 0xF6,
+    INS_INC_ABS = 0xEE,
+    INS_INC_ABX = 0xFE,
+
+    INS_INX     = 0xE8,
+    INS_INY     = 0xC8,
+
     INS_JMP_ABS = 0x4C, // JMP
     INS_JMP_IDR = 0x6C,
 
