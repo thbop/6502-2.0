@@ -12,6 +12,8 @@ struct {
        V : 1,       // Overflow Flag
        N : 1;       // Negative Flag
     
+    u8 interrupt;
+    
 } CPU;
 
 u8 CPU_pack_flags() {
@@ -65,26 +67,26 @@ u16 CPU_fetch_u16() {
 }
 
 void CPU_stack_push_u8( u8 value ) {
-    // printf("-> %X\n", value);
+    // printf("-> %02X\n", value);
     CPU_write_u8( CPU.SP+0x100, value );
     CPU.SP--;
 }
 
 void CPU_stack_push_u16( u16 value ) {
-    // printf("-> %X\n", value);
+    // printf("-> %02X\n", value);
     CPU_write_u16( CPU.SP+0x100, value );
     CPU.SP -= 2;
 }
 
 u8 CPU_stack_pull_u8() {
     CPU.SP++;
-    // printf("<- %X\n", CPU_read_u8( CPU.SP+0x100));
+    // printf("<- %02X\n", CPU_read_u8( CPU.SP+0x100));
     return CPU_read_u8( CPU.SP+0x100);
 }
 
 u16 CPU_stack_pull_u16() {
     CPU.SP += 2;
-    // printf("<- %X\n", CPU_read_u16( CPU.SP+0x100));
+    // printf("<- %02X\n", CPU_read_u16( CPU.SP+0x100));
     return CPU_read_u16( CPU.SP+0x100);
 }
 
@@ -102,6 +104,8 @@ void CPU_reset() {
     CPU.I = CPU.D =
     CPU.B = CPU.V =
     CPU.N = 0;
+
+    CPU.interrupt = 0;
 }
 
 // CPU set generic flags
@@ -174,20 +178,36 @@ void CPU_BRK() {
     CPU.PC = CPU_read_u16( 0xFFFE );
 }
 
+
 void CPU_RTI() {
     CPU_unpack_flags( CPU_stack_pull_u16() );
     CPU.PC = CPU_stack_pull_u16();
 }
 
+void CPU_ADC( u8 value ) {
+    u16 sum = CPU.A;
+    u8 samesigns = !( (CPU.A ^ value) & 0x80 );
+
+    sum += value + CPU.C;
+    CPU.A = sum & 0xFF;
+
+    // Set flags
+    CPU.C = sum > 0xFF;
+    CPU.V = samesigns && ( ( CPU.A ^ value ) );
+    CPU_sgf( CPU.A );
+}
 
 
 void CPU_execute() {
+    if ( CPU.interrupt ) { CPU_BRK(); CPU.interrupt = 0; }
     u8 ins = CPU_fetch_u8();
-    printf(
-        "PC: %X INS: %X A: %X X: %X Y: %X C: %X Z: %X I: %X D: %X B: %X V: %X N: %X\n",
-        CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N
-    );
+    // printf(
+    //     "PC: %02X INS: %02X A: %02X X: %02X Y: %02X C: %02X Z: %02X I: %02X D: %02X B: %02X V: %02X N: %02X SP: %02X\n",
+    //     CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N, CPU.SP
+    // );
     switch (ins) {
+        
+
         case INS_BRK    : CPU_BRK();                               break; // BRK
 
         case INS_LDA_IM : CPU_LD( &CPU.A, CPU_get_IM() );          break; // LDA
@@ -222,7 +242,7 @@ void CPU_execute() {
         case INS_JMP_ABS: CPU.PC = CPU_fetch_u16();                break; // JMP
         case INS_JMP_IDR: CPU.PC = CPU_get_ABS(0);                 break;
 
-        case INS_JSR    : CPU_JSR();                               break;
+        case INS_JSR    : CPU_JSR();                               break; // JSR
 
         case INS_PHA    : CPU_stack_push_u8(CPU.A);                break; // PHA
         case INS_PHP    : CPU_stack_push_u8(CPU_pack_flags());     break; // PHP

@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     //     printf("ERROR: File argument not supplied!\n");
     //     return 1;
     // }
-    MEM_load_ROM("sys.out");
+    if ( MEM_load_ROM("sys.out") ) return 1;
 
     CPU_reset();
 
@@ -34,17 +34,17 @@ int main(int argc, char** argv) {
     // pthread_create(&thread_id, NULL, execute, NULL);
 
     // while (1) {
-    //     printf("> ");
     //     fgets(MEM.buffer+0x0200, 0xFF, stdin); // Not very accurate...
-    //     printf("A: %X\n", CPU.A);
+    //     CPU.interrupt = 1; while ( CPU.B );
+    //     for ( int i = 0; i < 0xFF; i++ ) printf("%X ", MEM.buffer[0x300+i]);
     // }
 
+    
+
     // For basic instruction testing
-    for ( int i = 0; i < 40; i++ ) {
-        CPU_execute();
-    }
-
-
+    // for ( int i = 0; i < 130; i++ ) {
+    //     CPU_execute();
+    // }
 
     return 0;
 }

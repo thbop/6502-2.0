@@ -3,3 +3,4 @@
 *.exe
 *.o
 hexdump.py
+hexdump2.py
