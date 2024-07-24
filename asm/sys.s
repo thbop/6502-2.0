@@ -3,11 +3,24 @@
     sta addr
 .endmacro
 
+.macro set16 addr, value ; Sets a 16 bit value
+    set addr,   value>>8
+    set addr+1, value & $FF
+.endmacro
+
 .macro add addr0, addr1, result_addr
     clc
     lda addr0
     adc addr1
     sta result_addr
+.endmacro
+
+.macro cpystr str, dest
+    ldx #0
+    cpystr_l:
+        set {dest,x}, {str,x}
+        inx
+        bne cpystr_l
 .endmacro
 
 ; TEST_CODE or a sample program that is loaded into memory by the kernel
@@ -40,11 +53,21 @@ code_fib:
 
 
 interrupt:         ; 3 bytes
-    jmp interrupt
+    jsr interrupt_handle
+    rti
 
 start:
-    jsr $4000  ; jump to program
-    brk
+    ; jsr $4000  ; jump to program
+
+halt:
+    jmp halt
+
+; String literals
+text_prompt: .byte "> "
+
+
+interrupt_handle:
+    cpystr text_prompt, $0300
 
 
 
