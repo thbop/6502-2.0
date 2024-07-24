@@ -165,6 +165,11 @@ void CPU_LD( u8* dest, u8 value ) {
     *dest = value;
 }
 
+void CPU_branch( u8 condition ) {
+    if ( condition ) CPU.PC += (i8)CPU_get_IM();
+    else             CPU.PC++; // Else, argument is not loaded, so skip past it.
+}
+
 void CPU_JSR() {
     CPU_stack_push_u16( CPU.PC+2 );
     CPU.PC = CPU_fetch_u16();
@@ -197,12 +202,20 @@ void CPU_ADC( u8 value ) {
     CPU_sgf( CPU.A );
 }
 
+void CPU_BIT( u8 value ) {
+    u8 pattern = value & CPU.A;
+
+    if ( !pattern ) CPU.Z = 1;
+    CPU.V = (pattern >> 6) == 1;
+    CPU.N = (pattern >> 7) == 1;
+}
+
 
 void CPU_execute() {
     if ( CPU.interrupt ) { CPU_BRK(); CPU.interrupt = 0; }
     u8 ins = CPU_fetch_u8();
     printf(
-        "PC: %02X INS: %02X A: %02X X: %02X Y: %02X C: %02X Z: %02X I: %02X D: %02X B: %02X V: %02X N: %02X SP: %02X\n",
+        "\nPC: %02X INS: %02X A: %02X X: %02X Y: %02X C: %02X Z: %02X I: %02X D: %02X B: %02X V: %02X N: %02X SP: %02X",
         CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N, CPU.SP
     );
     switch (ins) {
@@ -214,6 +227,18 @@ void CPU_execute() {
         case INS_ADC_ABY: CPU_ADC( CPU_get_ABS(CPU.Y) );           break;
         case INS_ADC_IX : CPU_ADC( CPU_get_IDR(CPU.X, 0) );        break;
         case INS_ADC_IY : CPU_ADC( CPU_get_IDR(0, CPU.Y) );        break;
+
+        case INS_BCC    : CPU_branch( !CPU.C );                    break; // BCC
+        case INS_BCS    : CPU_branch( CPU.C );                     break; // BCS
+
+        case INS_BEQ    : CPU_branch( CPU.Z );                     break; // BEQ
+
+        case INS_BIT_ZP : CPU_BIT( CPU_get_ZP(0) );                break; // BIT
+        case INS_BIT_ABS: CPU_BIT( CPU_get_ABS(0) );               break;
+
+        case INS_BMI    : CPU_branch( CPU.N );                     break; // BMI
+        case INS_BNE    : CPU_branch( !CPU.Z );                    break; // BNE
+        case INS_BPL    : CPU_branch( !CPU.N );                    break; // BPL
 
         case INS_BRK    : CPU_BRK();                               break; // BRK
 
@@ -277,7 +302,7 @@ void CPU_execute() {
         case INS_RTI    : CPU_RTI();                               break; // RTI
         case INS_RTS    : CPU.PC = CPU_stack_pull_u16();           break; // RTS
 
-        default:                                                   break;
+        default:  printf(" Bad OP code: \"%02X\"", ins);         break;
     }
 }
 

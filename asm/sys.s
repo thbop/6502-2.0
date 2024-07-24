@@ -32,7 +32,7 @@ code_fib:
     set q, w
     set w, e
 
-    jmp code_fib
+    bcc code_fib
 
     rts
 

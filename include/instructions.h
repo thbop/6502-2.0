@@ -9,7 +9,21 @@ enum {
     INS_ADC_IX  = 0x61,
     INS_ADC_IY  = 0x71,
 
+    INS_BCC     = 0x90, // BCC
+    INS_BCS     = 0xB0, // BCS
+    INS_BEQ     = 0xF0, // BEQ
+
+    INS_BIT_ZP  = 0x24, // BIT
+    INS_BIT_ABS = 0x2C,
+
+    INS_BMI     = 0x30, // BMI
+    INS_BNE     = 0xD0, // BNE
+    INS_BPL     = 0x10, // BPL
+
     INS_BRK     = 0x00, // BRK
+
+    INS_BVC     = 0x50, // BVC
+    INS_BVS     = 0x70, // BVS
 
     INS_CLC     = 0x18, // CLC
 
