@@ -1,6 +1,17 @@
 
 enum {
+    INS_ADC_IM  = 0x69, // ADC
+    INS_ADC_ZP  = 0x65,
+    INS_ADC_ZPX = 0x75,
+    INS_ADC_ABS = 0x6D,
+    INS_ADC_ABX = 0x7D,
+    INS_ADC_ABY = 0x79,
+    INS_ADC_IX  = 0x61,
+    INS_ADC_IY  = 0x71,
+
     INS_BRK     = 0x00, // BRK
+
+    INS_CLC     = 0x18, // CLC
 
     INS_LDA_IM  = 0xA9, // LDA
     INS_LDA_ZP  = 0xA5,

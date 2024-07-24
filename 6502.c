@@ -42,9 +42,9 @@ int main(int argc, char** argv) {
     
 
     // For basic instruction testing
-    // for ( int i = 0; i < 130; i++ ) {
-    //     CPU_execute();
-    // }
+    for ( int i = 0; i < 256; i++ ) {
+        CPU_execute();
+    }
 
     return 0;
 }

@@ -1,6 +1,4 @@
-
 /.vscode
 *.exe
 *.o
-hexdump.py
-hexdump2.py
+*.py

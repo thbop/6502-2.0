@@ -201,14 +201,23 @@ void CPU_ADC( u8 value ) {
 void CPU_execute() {
     if ( CPU.interrupt ) { CPU_BRK(); CPU.interrupt = 0; }
     u8 ins = CPU_fetch_u8();
-    // printf(
-    //     "PC: %02X INS: %02X A: %02X X: %02X Y: %02X C: %02X Z: %02X I: %02X D: %02X B: %02X V: %02X N: %02X SP: %02X\n",
-    //     CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N, CPU.SP
-    // );
+    printf(
+        "PC: %02X INS: %02X A: %02X X: %02X Y: %02X C: %02X Z: %02X I: %02X D: %02X B: %02X V: %02X N: %02X SP: %02X\n",
+        CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N, CPU.SP
+    );
     switch (ins) {
-        
+        case INS_ADC_IM : CPU_ADC( CPU_get_IM() );                 break; // ADC
+        case INS_ADC_ZP : CPU_ADC( CPU_get_ZP(0) );                break;
+        case INS_ADC_ZPX: CPU_ADC( CPU_get_ZP(CPU.X) );            break;
+        case INS_ADC_ABS: CPU_ADC( CPU_get_ABS(0) );               break;
+        case INS_ADC_ABX: CPU_ADC( CPU_get_ABS(CPU.X) );           break;
+        case INS_ADC_ABY: CPU_ADC( CPU_get_ABS(CPU.Y) );           break;
+        case INS_ADC_IX : CPU_ADC( CPU_get_IDR(CPU.X, 0) );        break;
+        case INS_ADC_IY : CPU_ADC( CPU_get_IDR(0, CPU.Y) );        break;
 
         case INS_BRK    : CPU_BRK();                               break; // BRK
+
+        case INS_CLC    : CPU.C = 0;                               break; // CLC
 
         case INS_LDA_IM : CPU_LD( &CPU.A, CPU_get_IM() );          break; // LDA
         case INS_LDA_ZP : CPU_LD( &CPU.A, CPU_get_ZP(0) );         break;
