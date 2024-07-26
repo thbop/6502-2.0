@@ -20,7 +20,18 @@
     cpystr_l:
         set {dest,x}, {str,x}
         inx
+        lda str,x
         bne cpystr_l
+.endmacro
+
+; Sets a page-sized buffer (thus size must be a byte) with a single value
+.macro memset start, value, size
+    ldx #0
+    lda value
+    memset_l:
+        sta start,x
+        cpx size
+        bne memset_l
 .endmacro
 
 ; TEST_CODE or a sample program that is loaded into memory by the kernel
@@ -53,8 +64,7 @@ code_fib:
 
 
 interrupt:         ; 3 bytes
-    jsr interrupt_handle
-    rti
+    jmp interrupt_handle
 
 start:
     ; jsr $4000  ; jump to program
@@ -63,11 +73,13 @@ halt:
     jmp halt
 
 ; String literals
-text_prompt: .byte "> "
+text_prompt: .byte "> ", $00
 
 
 interrupt_handle:
+    ; memset $0300, #0, #$ff
     cpystr text_prompt, $0300
+    rti
 
 
 

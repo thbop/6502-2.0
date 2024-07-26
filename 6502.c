@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, execute, NULL);
 
-    sleep(10); // Let some assembly run
+    sleep(20); // Let some assembly run
 
     // char* txt = "Hello World!";
     // for ( int i = 0; i < 13; i++ ) MEM.buffer[i+0x0200] = txt[i];
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     while (1) {
         for ( int i = 0; i < 0xFF; i++ ) printf("%c", MEM.buffer[i+0x0300]);
 
-        fgets(MEM.buffer+0x0200, 0xFF, stdin);                 // Not very accurate...
+        fgets(MEM.buffer+0x0201, 0xFF, stdin);                 // Not very accurate...
         MEM.buffer[0x0200+strlen(MEM.buffer+0x0200)-1] = '\0'; // Get rid of \n
 
         CPU.interrupt = 1; sleep(10);

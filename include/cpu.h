@@ -114,6 +114,13 @@ void CPU_sgf( u8 value ) {
     CPU.N = ( 0b10000000 & value ) > 0; // Set Negative Flag if 7th bit is 1
 }
 
+void CPU_CMP( u8 reg, u8 value ) {
+    CPU.C = reg >= value;
+    CPU.Z = reg == value;
+
+    CPU.N = ( 0b10000000 & value ) > 0;
+}
+
 u8 CPU_get_IM() {
     return CPU_fetch_u8();
 }
@@ -243,6 +250,10 @@ void CPU_execute() {
         case INS_BRK    : CPU_BRK();                               break; // BRK
 
         case INS_CLC    : CPU.C = 0;                               break; // CLC
+
+        case INS_CPX_IM : CPU_CMP(CPU.X, CPU_get_IM());            break; // CPX
+        case INS_CPX_ZP : CPU_CMP(CPU.X, CPU_get_ZP(0));           break;
+        case INS_CPX_ABS: CPU_CMP(CPU.X, CPU_get_ABS(0));          break;
 
         case INS_LDA_IM : CPU_LD( &CPU.A, CPU_get_IM() );          break; // LDA
         case INS_LDA_ZP : CPU_LD( &CPU.A, CPU_get_ZP(0) );         break;
