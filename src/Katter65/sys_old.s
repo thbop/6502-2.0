@@ -17,6 +17,7 @@
 
 .macro cpystr str, dest
     ldx #0
+    .local cpystr_l
     cpystr_l:
         set {dest,x}, {str,x}
         inx
@@ -28,6 +29,7 @@
 .macro memset start, value, size
     ldx #0
     lda value
+    .local memset_l
     memset_l:
         sta start,x
         cpx size
@@ -77,8 +79,8 @@ text_prompt: .byte "> ", $00
 
 
 interrupt_handle:
-    ; memset $0300, #0, #$ff
-    cpystr text_prompt, $0300
+    memset $0300, #0, #$ff
+    cpystr $0200, $0300
     rti
 
 

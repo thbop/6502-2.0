@@ -221,10 +221,10 @@ void CPU_BIT( u8 value ) {
 void CPU_execute() {
     if ( CPU.interrupt ) { CPU_BRK(); CPU.interrupt = 0; }
     u8 ins = CPU_fetch_u8();
-    // printf(
-    //     "\nPC: %02X INS: %02X A: %02X X: %02X Y: %02X C: %02X Z: %02X I: %02X D: %02X B: %02X V: %02X N: %02X SP: %02X",
-    //     CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N, CPU.SP
-    // );
+    printf(
+        "\nPC: %02X INS: %02X A: %02X X: %02X Y: %02X C: %02X Z: %02X I: %02X D: %02X B: %02X V: %02X N: %02X SP: %02X",
+        CPU.PC-1, ins, CPU.A, CPU.X, CPU.Y, CPU.C, CPU.Z, CPU.I, CPU.D, CPU.B, CPU.V, CPU.N, CPU.SP
+    );
     switch (ins) {
         case INS_ADC_IM : CPU_ADC( CPU_get_IM() );                 break; // ADC
         case INS_ADC_ZP : CPU_ADC( CPU_get_ZP(0) );                break;
@@ -309,6 +309,8 @@ void CPU_execute() {
         case INS_STY_ZP : CPU_set_ZP ( CPU.Y, 0 );                 break; // STY
         case INS_STY_ZPX: CPU_set_ZP ( CPU.Y, CPU.X );             break;
         case INS_STY_ABS: CPU_set_ABS( CPU.Y, 0 );                 break;
+
+        case INS_TAX    : CPU_sgf( CPU.X = CPU.A );                break; // TAX
 
         case INS_RTI    : CPU_RTI();                               break; // RTI
         case INS_RTS    : CPU.PC = CPU_stack_pull_u16();           break; // RTS

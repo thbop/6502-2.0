@@ -86,6 +86,8 @@ enum {
     INS_STY_ZPX = 0x94,
     INS_STY_ABS = 0x8C,
 
+    INS_TAX     = 0xAA, // TAX
+
     INS_RTI     = 0x40, // RTI
     INS_RTS     = 0x60, // RTS
 };

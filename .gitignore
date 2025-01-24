@@ -1,4 +1,2 @@
 /.vscode
-*.exe
-*.o
-*.py
+/build
