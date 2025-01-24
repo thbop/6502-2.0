@@ -1,7 +1,7 @@
 .segment "BOOTLOADER"
 
 halt:
-    brk
+    ; brk
     jmp halt
 
 .align 512

@@ -15,7 +15,7 @@
 #endif
 
 // Global typedefs
-typedef char           i8;
+typedef signed char    i8;
 typedef unsigned char  u8;
 typedef unsigned short u16;
 
@@ -23,33 +23,38 @@ typedef unsigned short u16;
 #include "memory.h"
 #include "instructions.h"
 #include "cpu.h"
+#include "disk.h"
+#include "bios.h"
+
 
 
 // Main program
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
+    printf("Loading 6502...\n");
     if ( argc < 3 ) {
         printf("Syntax: <BIOS> <FLOPPY>\n");
         return -1;
     }
-    printf("Loading 6502...\n");
-    if ( !MEM_load_BIOS(argv[1], 0x8000) ) {
+
+    DISK_Initialize(argv[1], argv[2]);
+
+    if ( !DISK_Load_BIOS(0x8000) ) {
         printf("Failed to load BIOS file: \"%s\"\n", argv[1]);
         return -2;
-    }
-    if ( !MEM_load_BOOT(argv[2], 0x9000) ) {
-        printf("Failed to load FLOPPY (BOOT) file: \"%s\"\n", argv[1]);
-        return -3;
     }
 
     CPU_reset();
 
-    while (true)
-        CPU_execute();
+    // while (true) {
+    //     CPU_execute();
+    //     BIOS_main();
+    // }
 
     // For basic instruction testing
-    // for ( int i = 0; i < 256; i++ ) {
-    //     CPU_execute();
-    // }
+    for ( int i = 0; i < 256; i++ ) {
+        CPU_execute();
+        BIOS_main();
+    }
 
     return 0;
 }
