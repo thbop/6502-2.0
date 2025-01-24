@@ -1,5 +1,6 @@
 // General includes
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -23,50 +24,32 @@ typedef unsigned short u16;
 #include "instructions.h"
 #include "cpu.h"
 
-void execute() {
-    while (1) CPU_execute();
-}
 
 // Main program
 int main(int argc, char** argv) {
-    // if ( argc > 1 ) {
-    //     if ( MEM_load_ROM(argv[1]) ) return 1;
-    // }
-    // else {
-    //     printf("ERROR: File argument not supplied!\n");
-    //     return 1;
-    // }
-    if ( MEM_load_ROM("sys.out") ) return 1;
+    if ( argc < 3 ) {
+        printf("Syntax: <BIOS> <FLOPPY>\n");
+        return -1;
+    }
+    printf("Loading 6502...\n");
+    if ( !MEM_load_BIOS(argv[1], 0x8000) ) {
+        printf("Failed to load BIOS file: \"%s\"\n", argv[1]);
+        return -2;
+    }
+    if ( !MEM_load_BOOT(argv[2], 0x9000) ) {
+        printf("Failed to load FLOPPY (BOOT) file: \"%s\"\n", argv[1]);
+        return -3;
+    }
 
     CPU_reset();
 
-
-    // pthread_t thread_id;
-    // pthread_create(&thread_id, NULL, execute, NULL);
-
-    // // Let some assembly run
-    // sleep(20);
-
-    // char* txt = "Hello World!";
-    // for ( int i = 0; i < 13; i++ ) MEM.buffer[i+0x0200] = txt[i];
-    // CPU.interrupt = 1; sleep(10);
-    // for ( int i = 0; i < 0xFF; i++ ) printf("%c", MEM.buffer[i+0x0300]);
-
-    // while (1) {
-    //     for ( int i = 0; i < 0xFF; i++ ) printf("%c", MEM.buffer[i+0x0300]);
-
-    //     fgets(MEM.buffer+0x0201, 0xFF, stdin);                 // Not very accurate...
-    //     MEM.buffer[0x0200+strlen(MEM.buffer+0x0200)-1] = '\0'; // Get rid of \n
-
-    //     CPU.interrupt = 1; sleep(10);
-    // }
-
-    
+    while (true)
+        CPU_execute();
 
     // For basic instruction testing
-    for ( int i = 0; i < 256; i++ ) {
-        CPU_execute();
-    }
+    // for ( int i = 0; i < 256; i++ ) {
+    //     CPU_execute();
+    // }
 
     return 0;
 }

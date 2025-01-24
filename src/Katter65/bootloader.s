@@ -1,8 +1,7 @@
 .segment "BOOTLOADER"
 
-jmp $0000
-jmp $0000
-jmp $0000
-jmp $0000
+halt:
+    brk
+    jmp halt
 
 .align 512

@@ -13,7 +13,7 @@ SRC_KATTER65=$(SRC_DIR)/Katter65
 all: clean 6502 bios Katter65
 
 6502: $(BUILD_DIR)/6502.exe
-$(BUILD_DIR)/6502.exe: $(BUILD_DIR)/6502.exe
+$(BUILD_DIR)/6502.exe:
 	$(CC) $(SRC_6502)/6502.c -o $(BUILD_DIR)/6502.exe
 
 

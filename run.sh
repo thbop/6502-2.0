@@ -1,0 +1,1 @@
+./build/6502 build/bios.bin build/Katter65.img
