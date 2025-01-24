@@ -40,7 +40,7 @@ void CPU_unpack_flags( u8 value ) {
 
 u16 CPU_read_u16( u16 address ) {
     //               MSB                         LSB
-    return (MEM.buffer[address+1] << 8) + MEM.buffer[address];
+    return (MEM.buffer[address+1] << 8) | MEM.buffer[address];
 }
 
 u8 CPU_read_u8( u16 address ) {
@@ -67,27 +67,27 @@ u16 CPU_fetch_u16() {
 }
 
 void CPU_stack_push_u8( u8 value ) {
-    // printf("-> %02X\n", value);
     CPU_write_u8( CPU.SP+0x100, value );
     CPU.SP--;
+    // printf("SP: %02X -> %02X\n", CPU.SP, value);
 }
 
 void CPU_stack_push_u16( u16 value ) {
-    // printf("-> %02X\n", value);
-    CPU_write_u16( CPU.SP+0x100, value );
+    CPU_write_u16( CPU.SP+0x100-1, value );
     CPU.SP -= 2;
+    // printf("SP: %02X -> %02X\n", CPU.SP, value);
 }
 
 u8 CPU_stack_pull_u8() {
     CPU.SP++;
-    // printf("<- %02X\n", CPU_read_u8( CPU.SP+0x100));
+    // printf("SP: %02X <- %02X\n", CPU.SP, CPU_read_u8( CPU.SP+0x100));
     return CPU_read_u8( CPU.SP+0x100);
 }
 
 u16 CPU_stack_pull_u16() {
     CPU.SP += 2;
-    // printf("<- %02X\n", CPU_read_u16( CPU.SP+0x100));
-    return CPU_read_u16( CPU.SP+0x100);
+    // printf("SP: %02X <- %02X\n", CPU.SP, CPU_read_u16( CPU.SP+0x100));
+    return CPU_read_u16( CPU.SP+0x100-1);
 }
 
 void CPU_reset() {
@@ -184,7 +184,13 @@ void CPU_JSR() {
 
 void CPU_BRK() {
     CPU_stack_push_u16( CPU.PC );
-    CPU_stack_push_u16( CPU_pack_flags() );
+    // printf("BRK: SP: %02X READ: %02X\n", CPU.SP, CPU_read_u16(0x1FE));
+    CPU_stack_push_u8( CPU_pack_flags() );
+
+    // printf("STACK:\n");
+    // for ( int i = 0xFF; i > 0xF0; i-- ) {
+    //     printf("\t%02X\n", CPU_read_u8(0x0100+i));
+    // }
 
     CPU.B = 1;
     CPU.PC = CPU_read_u16( 0xFFFE );
@@ -192,7 +198,7 @@ void CPU_BRK() {
 
 
 void CPU_RTI() {
-    CPU_unpack_flags( CPU_stack_pull_u16() );
+    CPU_unpack_flags( CPU_stack_pull_u8() );
     CPU.PC = CPU_stack_pull_u16();
 }
 
@@ -250,6 +256,15 @@ void CPU_execute() {
         case INS_BRK    : CPU_BRK();                               break; // BRK
 
         case INS_CLC    : CPU.C = 0;                               break; // CLC
+
+        case INS_CMP_IM : CPU_CMP( CPU.A, CPU_get_IM() );          break; // CMP
+        case INS_CMP_ZP : CPU_CMP( CPU.A, CPU_get_ZP(0) );         break;
+        case INS_CMP_ZPX: CPU_CMP( CPU.A, CPU_get_ZP(CPU.X) );     break;
+        case INS_CMP_ABS: CPU_CMP( CPU.A, CPU_get_ABS(0) );        break;
+        case INS_CMP_ABX: CPU_CMP( CPU.A, CPU_get_ABS(CPU.X) );    break;
+        case INS_CMP_ABY: CPU_CMP( CPU.A, CPU_get_ABS(CPU.Y) );    break;
+        case INS_CMP_IX : CPU_CMP( CPU.A, CPU_get_IDR(CPU.X, 0) ); break;
+        case INS_CMP_IY : CPU_CMP( CPU.A, CPU_get_IDR(0, CPU.Y) ); break;
 
         case INS_CPX_IM : CPU_CMP(CPU.X, CPU_get_IM());            break; // CPX
         case INS_CPX_ZP : CPU_CMP(CPU.X, CPU_get_ZP(0));           break;
@@ -315,7 +330,7 @@ void CPU_execute() {
         case INS_RTI    : CPU_RTI();                               break; // RTI
         case INS_RTS    : CPU.PC = CPU_stack_pull_u16();           break; // RTS
 
-        default:  printf(" Bad OP code: \"%02X\"", ins);         break;
+        default:  printf(" Bad OP code: \"%02X\"", ins);           break;
     }
 }
 

@@ -27,6 +27,15 @@ enum {
 
     INS_CLC     = 0x18, // CLC
 
+    INS_CMP_IM  = 0xC9, // CMP
+    INS_CMP_ZP  = 0xC5,
+    INS_CMP_ZPX = 0xD5,
+    INS_CMP_ABS = 0xCD,
+    INS_CMP_ABX = 0xDD,
+    INS_CMP_ABY = 0xD9,
+    INS_CMP_IX  = 0xC1,
+    INS_CMP_IY  = 0xD1,
+
     INS_CPX_IM  = 0xE0, // CPX
     INS_CPX_ZP  = 0xE4,
     INS_CPX_ABS = 0xEC,
